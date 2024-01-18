@@ -5,22 +5,16 @@ from ._utils import EntityLike, SceneLike
 class Entity:
     def __init__(self) -> None:
         # Heirachy
-        self._parent: EntityLike = None
+        self.parent: EntityLike = None
         self._children: list[Entity] = []
 
         # Transform
         self.position: Vector3 = Vector3()
-        self.forward: Vector3 = Vector3(1, 0, 0)
-        self.scale: Vector3 = Vector3(1, 1, 1)
+        self.rotation = Vector3(0, 0, 0)
+        self.scale: float = 1
 
-    @property
-    def parent(self):
-        return self._parent
+        self._frame_task = lambda scene: None
 
-    @parent.setter
-    def parent(self, value: EntityLike):
-        self._parent = value
-    
     @property
     def children(self):
         return self._children # Read-only
@@ -35,6 +29,9 @@ class Entity:
 
 
     def update(self, scene: SceneLike):
+        self._frame_task(scene)
         for child in self.children:
             child.update(scene)
-        
+    
+    def on_frame(self, wrapper):
+        self._frame_task = wrapper

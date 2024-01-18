@@ -10,10 +10,13 @@ class Scene:
         self._children: list[EntityLike] = []
         
         self.active_camera = Camera()
+        self.add(self.active_camera)
 
         self.ambient_background: Color = Color(30, 30, 32)
 
         self.deltatime: float = 0
+
+        self._frame_tasks = []
 
     def update(self, screen: _pg.Surface, delta: float):
         self.deltatime = delta
@@ -22,6 +25,8 @@ class Scene:
             child.update(self)
 
         # Draw all children
+        for task in self._frame_tasks:
+            task(self.deltatime)
 
         return self
 
@@ -41,3 +46,8 @@ class Scene:
     @property
     def true_pos(self):
         return _pg.Vector3(0, 0, 0)
+
+    @property
+    def true_rot(self):
+        return _pg.Vector3(0, 0, 0)
+    
