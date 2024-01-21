@@ -2,6 +2,7 @@ from .entity import Entity
 from .scene import Scene
 from .utils import Image
 from .mesh import Mesh
+from .shader import Shader
 import pygame as _pg
 
 

@@ -53,11 +53,15 @@ class Camera(Entity):
                 zs = []
                 projected_face = []
                 uvs = []
-                for vertex, uv in face:
+                normals = []
+                for vertex, uv, normal in face:
                     # Transform
                     vertex = vertex.rotate_x(mesh.true_rot.x)
                     vertex = vertex.rotate_y(mesh.true_rot.y)
                     vertex = vertex.rotate_z(mesh.true_rot.z)
+                    normal = normal.rotate_x(mesh.true_rot.x)
+                    normal = normal.rotate_y(mesh.true_rot.y)
+                    normal = normal.rotate_z(mesh.true_rot.z)
                     vertex = vertex * mesh.scale
                     vertex = vertex + mesh.true_pos
 
@@ -71,6 +75,7 @@ class Camera(Entity):
                     )
                     zs.append(vertex.z)
                     uvs.append(uv)
+                    normals.append(normal)
                 # Draw bary
                 txs, tys = zip(*projected_face)
                 rz = min(zs)
@@ -100,8 +105,30 @@ class Camera(Entity):
                                 uv[0] * (material.texture._pg.get_width() - 1),
                                 uv[1] * (material.texture._pg.get_height() - 1),
                             )
-
-                            color = material.texture._pg.get_at(uv)
+                            norm = _pg.Vector3(
+                                bary[0] * normals[0][0]
+                                + bary[1] * normals[1][0]
+                                + bary[2] * normals[2][0],
+                                bary[0] * normals[0][1]
+                                + bary[1] * normals[1][1]
+                                + bary[2] * normals[2][1],
+                                bary[0] * normals[0][2]
+                                + bary[1] * normals[1][2]
+                                + bary[2] * normals[2][2],
+                            )
+                            color = scene.shader(
+                                tx + x,
+                                ty + y,
+                                z,
+                                norm,
+                                material.texture._pg.get_at(uv),
+                                scene,
+                            )
+                            color = (
+                                max(0, min(int(color[0]), 255)),
+                                max(0, min(int(color[1]), 255)),
+                                max(0, min(int(color[2]), 255)),
+                            )
                             self._pg.set_at((tx + x, ty + y), color)
 
     # _pg.draw.polygon(self._pg, material.color, projected_face)

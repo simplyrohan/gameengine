@@ -3,6 +3,7 @@ from ._utils import EntityLike, SceneLike
 import pygame as _pg
 from .camera import Camera
 from .utils import Color
+from .shader import Shader
 
 
 class Scene:
@@ -17,6 +18,8 @@ class Scene:
         self.deltatime: float = 0
 
         self._frame_tasks = []
+
+        self.shader = Shader(lambda x, y, z, normal, color, scene: color)
 
     def update(self, screen: _pg.Surface, delta: float):
         self.deltatime = delta
