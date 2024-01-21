@@ -76,12 +76,18 @@ class Camera(Entity):
                     zs.append(vertex.z)
                     uvs.append(uv)
                     normals.append(normal)
+
                 # Draw bary
                 txs, tys = zip(*projected_face)
                 rz = min(zs)
+
+                if rz == 0:
+                    rz = 1
+                    
                 uvs = [
                     (uv[0] / (z / rz), (uv[1]) / (z / rz)) for uv, z in zip(uvs, zs)
                 ]  # uvs and zs
+
                 zs = [(1 / z) for z in zs]
 
                 tx, ty = int(min(txs)), int(min(tys))
@@ -90,11 +96,23 @@ class Camera(Entity):
                 for x in range(tw):
                     for y in range(th):
                         # Part of triangle
+                        
+                        if (
+                            tx + x < 1
+                            or ty + y < 1
+                            or tx + x > self._pg.get_height()-1
+                            or ty + y > self._pg.get_width()-1
+                        ):
+                            continue
                         bary = cart_to_bary((tx + x, ty + y), projected_face)
                         if bary[0] < 0 or bary[1] < 0 or bary[2] < 0:
                             continue
 
-                        z = 1 / (bary[0] * zs[0] + bary[1] * zs[1] + bary[2] * zs[2])
+                        z = bary[0] * zs[0] + bary[1] * zs[1] + bary[2] * zs[2]
+                        if z == 0:
+                            continue
+                        z = 1 / z
+                        # print(tx + x, ty + y)
                         if buffer[tx + x][ty + y] > z:
                             buffer[tx + x][ty + y] = z
                             uv = bary_to_cart(bary, uvs)
@@ -122,6 +140,7 @@ class Camera(Entity):
                                 z,
                                 norm,
                                 material.texture._pg.get_at(uv),
+                                material,
                                 scene,
                             )
                             color = (

@@ -19,7 +19,7 @@ class Scene:
 
         self._frame_tasks = []
 
-        self.shader = Shader(lambda x, y, z, normal, color, scene: color)
+        self.shader = Shader(lambda x, y, z, normal, color, material, scene: color)
 
     def update(self, screen: _pg.Surface, delta: float):
         self.deltatime = delta
