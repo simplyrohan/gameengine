@@ -1,4 +1,4 @@
-from pygame import Vector3
+from pygame import Vector3, Vector2
 from .material import Material
 from .entity import Entity
 
@@ -14,26 +14,34 @@ class Mesh(Entity):
         with open(path, "r") as file:
             lines = file.readlines()
         vertices = []
+        uvs = []
         meshes = [[]]
         for line in lines:
+            line = line.strip()
             if line.startswith("v "):
                 vertices.append(Vector3(*map(float, line[2:].split(" "))))
+            elif line.startswith("vt "):
+                uvs.append(Vector2(*map(float, line[3:].split(" ")[:2])))
             if line.startswith("f "):
-                meshes[-1].append([vertices[int(i.split("/")[0])-1] for i in line[2:].split(" ")])
-        
+                
+                meshes[-1].append(
+                    [
+                        (
+                            vertices[int(i.split("/")[0]) - 1],
+                            uvs[int(i.split("/")[1]) - 1],
+                        )
+                        for i in line[2:].split(" ")
+                    ]
+                )
+
         mesh = Mesh()
         mesh.meshes = [
             [
                 "default",
                 "default",  # Name, Material
-                [
-                    (
-                        face,  # Vertices
-                        [],  # UV
-                    )
-                    for face in m
-                ],
-            ] for m in meshes
+                [face for face in m],  # Vertices
+            ]
+            for m in meshes
         ]
 
         return mesh

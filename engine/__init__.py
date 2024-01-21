@@ -6,21 +6,27 @@ import pygame as _pg
 
 
 class App:
-    def __init__(self, scene: Scene):
+    def __init__(self, scene: Scene, dev=False):
         self.scene: Scene = scene
 
         self._pg = _pg.display.set_mode((800, 600))
         _pg.display.set_caption("Engine")
         self._pg_clock = _pg.time.Clock()
+
+        self._title = "Engine"
         # Settings
         self.fps = 60
 
+        self.dev = dev
+
     @property
     def title(self):
-        return _pg.display.get_caption()[0]
+        return self._title
+        
 
     @title.setter
     def title(self, value: str):
+        self._title = value
         _pg.display.set_caption(value)
 
     @property
@@ -65,4 +71,8 @@ class App:
                     self.scene.exit()
             self.scene = self.scene.update(self._pg, delta=dt)
             dt = self._pg_clock.tick(self.fps)
+            if self.dev:
+                _pg.display.set_caption(
+                    f"{self.title} | FPS: {self._pg_clock.get_fps():.2F}"
+                )
             _pg.display.flip()
