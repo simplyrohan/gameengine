@@ -9,3 +9,11 @@ class Material:
         self.diffuse_intensity = 60
         self.specular_intensity = 1
         self.glossiness = 1
+    
+    @property
+    def albedo(self):
+        return self.texture._pg.get_at((0, 0))
+    
+    @albedo.setter
+    def albedo(self, value):
+        self.texture._pg.fill(value)
